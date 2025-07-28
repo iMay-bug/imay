@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma Mensagem Para Você</title>
+    <style>
+        /* Estilo geral da página */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(to top, #1a021f, #6a0dad);
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            cursor: pointer;
+        }
+
+        /* Contêiner para os textos que sobem */
+        .text-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .rising-text {
+            position: absolute;
+            bottom: -100px;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 2rem;
+            animation: rise linear forwards;
+            user-select: none;
+            will-change: transform, opacity;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes rise {
+            to {
+                transform: translateY(-110vh);
+                opacity: 0;
+            }
+        }
+
+        /* Estilo base para as camadas de overlay (mensagem e imagem) */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.85);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0s 0.5s;
+            z-index: 1000;
+        }
+
+        /* Classe que torna uma camada visível */
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Estilo do texto da mensagem principal */
+        #click-message p {
+            color: #ffffff;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            padding: 20px;
+            text-shadow: 0 0 15px #ff00dd, 0 0 25px #ff00f2, 0 0 40px #e600e6;
+            animation: pulse 2.5s infinite ease-in-out;
+            line-height: 1.4;
+        }
+        
+        /* NOVO: Estilo para a imagem no overlay */
+        #image-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+            box-shadow: 0 0 30px #ff80fa, 0 0 50px #e600e6;
+            object-fit: contain;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                text-shadow: 0 0 15px #ff00dd, 0 0 25px #ff00f2;
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 25px #ff80fa, 0 0 45px #e600e6;
+                transform: scale(1.02);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="text-container" id="text-container"></div>
+
+    <div class="overlay" id="click-message">
+        <p>Eu te amo, meu amor.<br>Volta logo,<br>tô com saudade.</p>
+    </div>
+
+    <div class="overlay" id="image-overlay">
+        <img src="image_6813cd.png" alt="Uma foto para você">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('text-container');
+            const messageOverlay = document.getElementById('click-message');
+            const imageOverlay = document.getElementById('image-overlay'); // Pega o novo elemento da imagem
+            
+            let lastTime = 0;
+            const interval = 150;
+
+            function createRisingText() {
+                const textElement = document.createElement('div');
+                textElement.classList.add('rising-text');
+                
+                // MUDANÇA: Texto alterado para "eu te amo joy"
+                textElement.innerText = 'eu te amo joy';
+
+                const randomX = Math.random() * 95;
+                const duration = Math.random() * 10 + 10;
+                const opacity = Math.random() * 0.3 + 0.1;
+
+                textElement.style.left = `${randomX}vw`;
+                textElement.style.animationDuration = `${duration}s`;
+                textElement.style.color = `rgba(255, 255, 255, ${opacity})`;
+
+                container.appendChild(textElement);
+
+                setTimeout(() => {
+                    textElement.remove();
+                }, duration * 1000);
+            }
+            
+            function animationLoop(timestamp) {
+                if (timestamp - lastTime > interval) {
+                    createRisingText();
+                    lastTime = timestamp;
+                }
+                requestAnimationFrame(animationLoop);
+            }
+
+            requestAnimationFrame(animationLoop);
+
+            // MUDANÇA: Lógica de clique para alternar entre mensagem e imagem
+            let clickState = 0; // 0: inicial, 1: mensagem visível, 2: imagem visível
+
+            document.body.addEventListener('click', () => {
+                if (clickState === 0) {
+                    // Primeiro clique: mostra a mensagem
+                    messageOverlay.classList.add('show');
+                    clickState = 1;
+                } else if (clickState === 1) {
+                    // Segundo clique: esconde a mensagem e mostra a imagem
+                    messageOverlay.classList.remove('show');
+                    imageOverlay.classList.add('show');
+                    clickState = 2;
+                } else { // clickState === 2
+                    // Terceiro clique: esconde a imagem e volta ao início
+                    imageOverlay.classList.remove('show');
+                    clickState = 0;
+                }
+            });
+        });
+    </script>
+
+</body>
